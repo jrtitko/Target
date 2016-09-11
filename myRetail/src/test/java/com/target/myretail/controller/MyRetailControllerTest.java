@@ -53,13 +53,13 @@ public class MyRetailControllerTest {
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(),
             Charset.forName("utf8"));
-    
+
     @Autowired
     private PriceRepository priceRepository;
 
     @Autowired
     MyRetailController myRetailController;
-    
+
     @Autowired
     void setConverters(HttpMessageConverter<?>[] converters) {
 
@@ -71,15 +71,15 @@ public class MyRetailControllerTest {
     }
 
     private Price origPrice;
-    
+
     @Before
     public void setUp() throws Exception {
         mockMvc = webAppContextSetup(webApplicationContext).build();
-        
+
         origPrice = priceRepository.findOne(13860428);
         priceRepository.save(new Price(13860428,  13.49, "USD"));
     }
-    
+
     @After
     public void tearDown() {
         if (origPrice != null) {
@@ -88,7 +88,7 @@ public class MyRetailControllerTest {
             priceRepository.delete(13860428);
         }
     }
-    
+
     @Test
     public void testGetProduct() throws Exception {
         mockMvc.perform(get("/myRetail/products/13860428"))
@@ -102,7 +102,7 @@ public class MyRetailControllerTest {
                 .andExpect(jsonPath("$.current_price.currency_code", is("USD")))
                 ;
     }
-    
+
     @Test
     public void testGetProduct_ProductFromAPIDoesntExist() throws Exception {
         mockMvc.perform(get("/myRetail/products/99999999"))
@@ -114,7 +114,7 @@ public class MyRetailControllerTest {
                 .andExpect(jsonPath("$").value(not(hasKey("current_price"))))
                 ;
     }
-    
+
     @Test
     public void testGetProduct_PriceDoesntExist() throws Exception {
         mockMvc.perform(get("/myRetail/products/16752456"))
@@ -126,22 +126,22 @@ public class MyRetailControllerTest {
                 .andExpect(jsonPath("$").value(not(hasKey("current_price"))))
                 ;
     }
-    
+
     @Test
     public void testPostProduct() throws Exception {
         Integer productId = 13860428;
-        
+
         Price newPrice = new Price(13860428, 99.99, "USD");
         mockMvc.perform(post("/myRetail/products/" + productId)
                         .content(json(newPrice))
                         .contentType(contentType))
                         .andExpect(status().isOk());
-        
+
         Price afterPrice = priceRepository.findOne(productId);
         assertNotNull(afterPrice);
         assertEquals(99.99, afterPrice.getValue(), 2);
     }
-    
+
     @Test
     public void testPostProduct_MismatchPriceId() throws Exception {
         Integer productId = 13860428;
@@ -157,12 +157,12 @@ public class MyRetailControllerTest {
         } catch (Exception e) {
             assertTrue(e.getCause().getMessage().contains("A price update"));
         }
-        
+
         Price afterPrice = priceRepository.findOne(productId);
         assertNotNull(afterPrice);
         assertEquals(beforePrice.getValue(), afterPrice.getValue(), 2);
     }
-    
+
     @SuppressWarnings("unchecked")
     private String json(Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
