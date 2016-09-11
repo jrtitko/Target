@@ -96,7 +96,7 @@ public class MyRetailControllerTest {
                 .andExpect(content().contentType(contentType))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(jsonPath("$.id", is(13860428)))
-                .andExpect(jsonPath("$.name", is("The Big Lebowski [Blu-ray]")))
+                .andExpect(jsonPath("$.name", is("The Big Lebowski (Blu-ray)")))
                 .andExpect(jsonPath("$.current_price", notNullValue()))
                 .andExpect(jsonPath("$.current_price.value", is(13.49)))
                 .andExpect(jsonPath("$.current_price.currency_code", is("USD")))
