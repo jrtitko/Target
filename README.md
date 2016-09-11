@@ -6,15 +6,15 @@ The goal for this exercise is to create an end-to-end Proof-of-Concept for a pro
 Technologies Used
 =================
 * Java 1.8  
+* Groovy 2.4.7
 * Spring Boot 1.3.5  
 * Gradle 2.14  
-* JUnit 4  
-* JMockit 1.24  
+* Spock 1.0-groovy-2.4  
 * MongoDB 3.3  
 * Docker 1.12.0-rc2-beta17  
 * Docker-Compose 1.8.0-rc1  
 * Git 2.9.0  
-* Eclipse Neon  
+* IntelliJ  
 
 
 Setup

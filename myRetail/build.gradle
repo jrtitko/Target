@@ -1,7 +1,7 @@
-apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'spring-boot'
 apply plugin: 'maven'
-apply plugin: 'eclipse'
+apply plugin: 'eclipse' // only for compatibility if I need to go back to eclipse
 apply plugin: 'idea'
 
 sourceCompatibility = 1.8
@@ -33,8 +33,17 @@ dependencies {
         exclude(module: 'commons-logging')
     }
     testCompile group: 'com.jayway.jsonpath', name: 'json-path', version:'2.0.0'
+// TODO - Will go away
     testCompile group: 'org.jmockit', name: 'jmockit', version:'1.24'
     testCompile group: 'org.jmockit', name: 'jmockit-coverage', version: '1.23'
+
+    // Spock - requires groovy
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.7'
+    testCompile group: 'org.spockframework', name: 'spock-core', version: '1.0-groovy-2.4'
+    testCompile "org.hamcrest:hamcrest-core:1.3" // only necessary if Hamcrest matchers are used
+    testRuntime "cglib:cglib-nodep:3.1"          // allows mocking of classes (in addition to interfaces)
+    testRuntime "org.objenesis:objenesis:2.1"    // allows mocking of classes without default constructor (together with CGLIB)
+
 }
 
 task wrapper(type: Wrapper) {
