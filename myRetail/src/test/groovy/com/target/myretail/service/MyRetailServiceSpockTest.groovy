@@ -21,11 +21,7 @@ import spock.lang.*
 /**
  * Created by jrtitko1 on 9/11/16.
  */
-@RunWith(JMockit.class)
 class MyRetailServiceSpockTest extends Specification {
-
-    @Mocked
-    RestTemplate mockRestTemplate;
 
     def productURL = 'https://dummyURL'
 
@@ -33,29 +29,20 @@ class MyRetailServiceSpockTest extends Specification {
 
     def mockLogger = Mock(Logger)
 
+    def mockRestTemplate = Mock(RestTemplate)
+
     def myRetailService = new MyRetailService(
             productURL: productURL,
             priceRepository: mockPriceRepository,
-            log: mockLogger
+            log: mockLogger,
+            restTemplate: mockRestTemplate
     )
 
-//    def mockRestTemplate = Mock(RestTemplate)
-
-    @Test
     def "build product"() {
         given:
         def productId = 13860428
         def price = new Price(13860428, 19.99, "USD")
         def productResponse = buildProductResponse()
-//        new MockUp<RestTemplate>() {
-//            @Mock
-//            public <T> T getForObject(String url, Class<T> responseType, Object... urlVariables) throws RestClientException {
-//                System.out.println("##################");
-//                System.out.println("#### MOCKED   ####");
-//                System.out.println("##################");
-//                return productResponse;
-//            }
-//        }
 
         when:
         Product product = myRetailService.getProduct(productId)
@@ -72,6 +59,47 @@ class MyRetailServiceSpockTest extends Specification {
         product.getCurrentPrice().getId() == Integer.valueOf(productId)
         product.getCurrentPrice().getValue() == 19.99
         product.getCurrentPrice().getCurrencyCode() == 'USD'
+    }
+
+    def "build product where the product is not found"() {
+        given:
+        def productId = 13860428
+        def productResponse = buildProductResponseForInvalidProduct()
+
+        when:
+        Product product = myRetailService.getProduct(productId)
+
+        then:
+        1 * mockRestTemplate.getForObject(_, _) >> productResponse
+        0 * mockPriceRepository.findOne(_ as Integer)
+        1 * mockLogger.info(productResponse.toString())
+        1 * mockLogger.warn("ProductID: 13860428 => Item Online Description is unavailable")
+
+        product != null
+        product.getId() == Integer.valueOf(productId)
+        product.getName() == null
+        product.getCurrentPrice() == null
+    }
+
+    def "build product where the price is not found"() {
+        given:
+        def productId = 13860428
+        def productResponse = buildProductResponse()
+        def price = null
+
+        when:
+        Product product = myRetailService.getProduct(productId)
+
+        then:
+        1 * mockRestTemplate.getForObject(_, _) >> productResponse
+        1 * mockPriceRepository.findOne(_ as Integer) >> price
+        1 * mockLogger.info(productResponse.toString())
+        1 * mockLogger.warn("ProductID: 13860428 => Pricing is unavailable")
+
+        product != null
+        product.getId() == Integer.valueOf(productId)
+        product.getName() == 'Hewy Lewis & The News Greatest Hits'
+        product.getCurrentPrice() == null
     }
 
     private ProductResponse buildProductResponse() {

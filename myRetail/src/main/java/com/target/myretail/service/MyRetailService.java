@@ -15,21 +15,23 @@ import com.target.myretail.repositories.PriceRepository;
 
 @Service
 public class MyRetailService {
-	
+
     static Logger log = Logger.getLogger(MyRetailService.class);
 
 	@Value("${product.description.url}")
 	private String productURL;
-	
+
 	@Resource
 	private PriceRepository priceRepository;
-	
+
+	private RestTemplate restTemplate = new RestTemplate();
+
 	public Product getProduct(Integer id) {
-	    		
+
 		ProductResponse response = getProductDescription(id);
-		
+
 		Product product = buildProduct(id, response);
-		
+
 		return product;
 	}
 
@@ -52,17 +54,16 @@ public class MyRetailService {
         }
         return price;
     }
-    
+
     private ProductResponse getProductDescription(Integer id) {
-        RestTemplate restTemplate = new RestTemplate();
 		String url = String.format(productURL, id);
 		ProductResponse response = null;
-	    response = restTemplate.getForObject(url, ProductResponse.class);		
+	    response = restTemplate.getForObject(url, ProductResponse.class);
 	    log.info(response.toString());
 
 	    return response;
-    }	
-    
+    }
+
     public void savePrice(Price newPrice) {
         priceRepository.save(newPrice);
     }
